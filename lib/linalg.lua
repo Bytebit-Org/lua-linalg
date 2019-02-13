@@ -17,25 +17,183 @@ local atan2 = math.atan2
 -- MATRIX FUNCTIONS
 linalg.matrix = {}
 
+local rowClass = {}
+rowClass.__tostring = function(row)
+	local result = ""
+
+	for i = 1, #row do
+		result = result .. row[i]
+		if i < #row then
+			result = result .. " "
+		end
+	end
+
+	return result
+end
+rowClass.__unm = function (row)
+	if #row == 1 then
+		return -1 * row[1]
+	end
+
+	local resultArray = {}
+
+	for i = 1, #row do
+		resultArray[i] = -1 * row[i]
+	end
+
+	return setmetatable(resultArray, rowClass)
+end
+rowClass.__add = function (left, right)
+	if type(left) == "number" or type(right) == "number" then
+		local row = type(left) == "number" and right or left
+		local scalar = type(left) == "number" and left or right
+
+		if #row == 1 then
+			local leftScalar = type(left) == "number" and left or left[1]
+			local rightScalar = type(right) == "number" and right or right[1]
+			return leftScalar + rightScalar
+		end
+
+		error("Addition of a scalar to a row is undefined")
+	end
+
+	if #left ~= #right then
+		error("Addition of rows of different lengths is undefined")
+	end
+
+	if #left == 1 then
+		return left[1] + right[1]
+	end
+	
+	local resultArray = {}
+
+	for i = 1, #left do
+		resultArray[i] = left[i] + right[i]
+	end
+
+	return setmetatable(resultArray, rowClass)
+end
+rowClass.__sub = function (left, right)
+	if type(left) == "number" or type(right) == "number" then
+		local row = type(left) == "number" and right or left
+		local scalar = type(left) == "number" and left or right
+
+		if #row == 1 then
+			local leftScalar = type(left) == "number" and left or left[1]
+			local rightScalar = type(right) == "number" and right or right[1]
+			return leftScalar - rightScalar
+		end
+
+		error("Subtraction of a scalar to a row is undefined")
+	end
+
+	if #left ~= #right then
+		error("Subtraction of rows of different lengths is undefined")
+	end
+
+	if #left == 1 then
+		return left[1] - right[1]
+	end
+	
+	local resultArray = {}
+
+	for i = 1, #left do
+		resultArray[i] = left[i] - right[i]
+	end
+
+	return setmetatable(resultArray, rowClass)
+end
+rowClass.__mul = function (left, right)
+	if type(left) == "number" or type(right) == "number" then
+		local row = type(left) == "number" and right or left
+		local scalar = type(left) == "number" and left or right
+
+		if #row == 1 then
+			local leftScalar = type(left) == "number" and left or left[1]
+			local rightScalar = type(right) == "number" and right or right[1]
+			return leftScalar * rightScalar
+		else
+			local resultArray = {}
+		
+			for i = 1, #row do
+				resultArray[i] = scalar * row[i]
+			end
+		
+			return setmetatable(resultArray, rowClass)
+		end
+	end
+
+	error("Multiplication of two rows is undefined")
+end
+rowClass.__div = function (left, right)
+	if type(left) == "number" then
+		error("Division of a scalar by a row is undefined")
+	elseif type(right) == "number" then
+		if #left == 1 then
+			return left[1] / right
+		else
+			local resultArray = {}
+		
+			for i = 1, #left do
+				resultArray[i] = left[i] / scalar
+			end
+		
+			return setmetatable(resultArray, rowClass)
+		end
+	else
+		error("Division of two rows is undefined")
+	end
+end
+rowClass.__mod = function (left, right)
+	if type(left) == "number" then
+		error("Modulo of a scalar by a row is undefined")
+	elseif type(right) == "number" then
+		if #left == 1 then
+			return left[1] % right
+		else
+			local resultArray = {}
+		
+			for i = 1, #left do
+				resultArray[i] = left[i] % scalar
+			end
+		
+			return setmetatable(resultArray, rowClass)
+		end
+	else
+		error("Modulo of two rows is undefined")
+	end
+end
+rowClass.__pow = function (left, right)
+	if type(left) == "number" then
+		if #right == 1 then
+			return left ^ right[1]
+		else
+			error("Exponentiation of a scalar by a row is undefined")
+		end
+	elseif type(right) == "number" then
+		if #left == 1 then
+			return left[1] ^ right
+		else
+			error("Exponentiation of a row by a scalar is undefined")
+		end
+	else
+		error("Exponentiation of two rows is undefined")
+	end
+end
+
 local matrixClass = {}
 matrixClass.__index = function(mat, key)
-	if type(key) == "number" then
-		return mat._rows[key]
-	elseif key == "T" then
+	if key == "T" then
 		print("TODO: Implement transpose")
-		return mat
+		mat.T = mat
+		return mat.T
 	end
 end
 matrixClass.__tostring = function(mat)
 	local result = ""
 
 	for i = 1, mat._size[1] do
-		for j = 1, mat._size[2] do
-			result = result .. mat[i][j]
-			if j < mat._size[2] then
-				result = result .. " "
-			end
-		end
+		result = result .. tostring(mat[i])
 		if i < mat._size[1] then
 			result = result .. "\n"
 		end
@@ -203,10 +361,13 @@ end
 	@returns [t:(m x n) matrix] The new matrix
 **--]]
 linalg.matrix.new = function(rows)
-	local instance = setmetatable({}, matrixClass)
+	local rowInstances = {}
+	for i = 1, #rows do
+		rowInstances[i] = setmetatable(rows[i], rowClass)
+	end
 
-	instance._rows = rows
-	instance._size = {#rows, #rows[1]}
+	local instance = setmetatable(rowInstances, matrixClass)
+	rawset(instance, "_size", { #rows, #rows[1] })
 
 	return instance
 end
@@ -228,7 +389,7 @@ linalg.vector.norm.l1 = function(v)
 	local sum = 0
 
 	for i = 1, #v do
-		sum = sum + abs(v[i])
+		sum = sum + abs(v[i][1])
 	end
 
 	return sum
@@ -246,7 +407,7 @@ linalg.vector.norm.l2 = function(v)
 	local sum = 0
 
 	for i = 1, #v do
-		sum = sum + v[i] ^ 2
+		sum = sum + v[i]^2
 	end
 
 	return sqrt(sum)
@@ -261,7 +422,29 @@ end
 	@returns [t:number] The resulting value
 **--]]
 linalg.vector.norm.linf = function(v)
-	return max(unpack(v))
+	local maxComponentValue = 0
+
+	for i = 1, #v do
+		local componentValue = abs(v[i][1])
+		if componentValue > maxComponentValue then
+			maxComponentValue = componentValue
+		end
+	end
+
+	return maxComponentValue
+end
+
+--[[**
+	Gets the unit vector with the same direction as the provided vectr
+
+	@param [t:(n x 1) matrix] v The vector with the appropriate direction
+	@param [t:function?] normFunc The function to use as the norm; Defaults to the L2 norm
+
+	@returns [t:(n x 1) matrix] The unit vector
+**--]]
+linalg.vector.unit = function(v, normFunc)
+	if not normFunc then normFunc = linalg.vector.norm.l2 end
+	return v / normFunc(v)
 end
 
 --[[**
@@ -282,11 +465,11 @@ linalg.vector.createRotationMatrix = function(u, theta)
 	local sintheta = sin(theta)
 	local versine = 1 - costheta
 
-	return {
+	return linalg.matrix.new({
 		{versine * u[1] ^ 2, (versine * u[1] * u[2]) - (sintheta * u[3]), (versine * u[1] * u[3]) + (sintheta * u[2])},
 		{(versine * u[1] * u[2]) + (sintheta * u[3]), versine * u[2] ^ 2, (versine * u[2] * u[3]) - (sintheta * u[1])},
 		{(versine * u[1] * u[3]) - (sintheta * u[2]), (versine * u[2] * u[3]) + (sintheta * u[1]), versine * u[3] ^ 2}
-	}
+	})
 end
 
 return linalg
