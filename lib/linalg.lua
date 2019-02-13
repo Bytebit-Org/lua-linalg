@@ -14,9 +14,6 @@ local sin = math.sin
 local tan = math.tan
 local atan2 = math.atan2
 
--- MATRIX FUNCTIONS
-linalg.matrix = {}
-
 local rowClass = {}
 rowClass.__tostring = function(row)
 	local result = ""
@@ -185,8 +182,17 @@ local matrixClass = {}
 matrixClass.__index = function(mat, key)
 	if key == "T" then
 		print("TODO: Implement transpose")
-		mat.T = mat
+		rawset(mat, "T", mat)
 		return mat.T
+	elseif key == "Unit" then
+		if mat._size[2] == 1 then
+			rawset(mat, "Unit", linalg.vector.unit(mat))
+		elseif mat._size[1] == mat._size[2] then
+			rawset(mat, "Unit", linalg.matrix.identity(mat._size[1]))
+		else
+			error("Unit of a non-square matrix is undefined")
+		end
+		return mat.Unit
 	end
 end
 matrixClass.__tostring = function(mat)
@@ -353,6 +359,9 @@ matrixClass.__eq = function(left, right)
 	return true
 end
 
+-- MATRIX FUNCTIONS
+linalg.matrix = {}
+
 --[[**
 	Creates a new matrix
 	
@@ -370,6 +379,26 @@ linalg.matrix.new = function(rows)
 	rawset(instance, "_size", { #rows, #rows[1] })
 
 	return instance
+end
+
+--[[**
+	Creates an identity matrix of size (n x n)
+
+	@param [t:number] n The size of the matrix
+
+	@returns [t:(n x n) matrix] The identity matrix
+**--]]
+linalg.matrix.identity = function(n)
+	local rows = {}
+
+	for i = 1, n do
+		rows[i] = {}
+		for j = 1, n do
+			rows[i][j] = i == j and 1 or 0
+		end
+	end
+
+	return linalg.matrix.new(rows)
 end
 
 -- VECTOR FUNCTIONS
