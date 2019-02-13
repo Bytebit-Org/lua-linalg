@@ -2,17 +2,12 @@ local linalg = {}
 
 -- ARITHMETIC FUNCTIONS
 local abs = math.abs
---REMOVE local ceil = math.ceil
 local floor = math.floor
 local sqrt = math.sqrt
---REMOVE local max = math.max
---REMOVE local min = math.min
 
 -- TRIG FUNCTIONS
 local cos = math.cos
 local sin = math.sin
---REMOVE local tan = math.tan
---REMOVE local atan2 = math.atan2
 
 local rowClass = {}
 rowClass.__tostring = function(row)
@@ -43,7 +38,6 @@ end
 rowClass.__add = function (left, right)
 	if type(left) == "number" or type(right) == "number" then
 		local row = type(left) == "number" and right or left
-		--REMOVE 
 
 		if #row == 1 then
 			local leftScalar = type(left) == "number" and left or left[1]
