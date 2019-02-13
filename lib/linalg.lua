@@ -67,7 +67,6 @@ end
 rowClass.__sub = function (left, right)
 	if type(left) == "number" or type(right) == "number" then
 		local row = type(left) == "number" and right or left
-		local scalar = type(left) == "number" and left or right
 
 		if #row == 1 then
 			local leftScalar = type(left) == "number" and left or left[1]
