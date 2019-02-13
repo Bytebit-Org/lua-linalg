@@ -18,7 +18,7 @@ local atan2 = math.atan2
 linalg.matrix = {}
 
 local matrixClass = {}
-matrixClass.__index = function (mat, key)
+matrixClass.__index = function(mat, key)
 	if type(key) == "number" then
 		return mat._rows[key]
 	elseif key == "T" then
@@ -26,9 +26,9 @@ matrixClass.__index = function (mat, key)
 		return mat
 	end
 end
-matrixClass.__tostring = function (mat)
+matrixClass.__tostring = function(mat)
 	local result = ""
-	
+
 	for i = 1, mat._size[1] do
 		for j = 1, mat._size[2] do
 			result = result .. mat[i][j]
@@ -40,60 +40,66 @@ matrixClass.__tostring = function (mat)
 			result = result .. "\n"
 		end
 	end
-	
+
 	return result
 end
-matrixClass.__unm = function (mat)
+matrixClass.__unm = function(mat)
 	local resultRows = {}
-	
+
 	for i = 1, mat._size[1] do
 		resultRows[i] = {}
 		for j = 1, mat._size[2] do
 			resultRows[i][j] = -1 * mat[i][j]
 		end
 	end
-	
+
 	return linalg.matrix.new(resultRows)
 end
-matrixClass.__add = function (left, right)
+matrixClass.__add = function(left, right)
 	if left._size[1] ~= right._size[1] or left._size[2] ~= right._size[2] then
-		error("Cannot add matrices of sizes (" .. left._size[1] .. " x " .. left._size[2] .. ") and (" .. right._size[1] .. " x " .. right._size[2] .. ")")
+		error(
+			"Cannot add matrices of sizes (" ..
+				left._size[1] .. " x " .. left._size[2] .. ") and (" .. right._size[1] .. " x " .. right._size[2] .. ")"
+		)
 	end
-	
+
 	local resultRows = {}
-	
+
 	for i = 1, left._size[1] do
 		resultRows[i] = {}
 		for j = 1, left._size[2] do
 			resultRows[i][j] = left[i][j] + right[i][j]
 		end
 	end
-	
+
 	return linalg.matrix.new(resultRows)
 end
-matrixClass.__sub = function (left, right)
+matrixClass.__sub = function(left, right)
 	if left._size[1] ~= right._size[1] or left._size[2] ~= right._size[2] then
-		error("Cannot subtract matrices of sizes (" .. left._size[1] .. " x " .. left._size[2] .. ") and (" .. right._size[1] .. " x " .. right._size[2] .. ")")
+		error(
+			"Cannot subtract matrices of sizes (" ..
+				left._size[1] .. " x " .. left._size[2] .. ") and (" .. right._size[1] .. " x " .. right._size[2] .. ")"
+		)
 	end
-	
+
 	local resultRows = {}
-	
+
 	for i = 1, left._size[1] do
 		resultRows[i] = {}
 		for j = 1, left._size[2] do
 			resultRows[i][j] = left[i][j] - right[i][j]
 		end
 	end
-	
+
 	return linalg.matrix.new(resultRows)
 end
-matrixClass.__mul = function (left, right)
+matrixClass.__mul = function(left, right)
 	local resultRows = {}
-	
+
 	if type(left) == "number" or type(right) == "number" then
 		local mat = type(left) == "number" and right or left
 		local scalar = type(left) == "number" and left or right
-		
+
 		for i = 1, mat._size[1] do
 			resultRows[i] = {}
 			for j = 1, mat._size[2] do
@@ -102,9 +108,12 @@ matrixClass.__mul = function (left, right)
 		end
 	else
 		if left._size[2] ~= right._size[1] then
-			error("Cannot multiply matrices of sizes (" .. left._size[1] .. " x " .. left._size[2] .. ") and (" .. right._size[1] .. " x " .. right._size[2] .. ")")
+			error(
+				"Cannot multiply matrices of sizes (" ..
+					left._size[1] .. " x " .. left._size[2] .. ") and (" .. right._size[1] .. " x " .. right._size[2] .. ")"
+			)
 		end
-		
+
 		for i = 1, left._size[1] do
 			resultRows[i] = {}
 			for j = 1, left._size[2] do
@@ -114,16 +123,16 @@ matrixClass.__mul = function (left, right)
 			end
 		end
 	end
-		
+
 	return linalg.matrix.new(resultRows)
 end
-matrixClass.__div = function (left, right)
+matrixClass.__div = function(left, right)
 	local resultRows = {}
-	
+
 	if type(left) == "number" or type(right) == "number" then
 		local mat = type(left) == "number" and right or left
 		local scalar = type(left) == "number" and left or right
-		
+
 		for i = 1, mat._size[1] do
 			resultRows[i] = {}
 			for j = 1, mat._size[2] do
@@ -133,16 +142,16 @@ matrixClass.__div = function (left, right)
 	else
 		error("Cannot divide a matrix by a matrix")
 	end
-		
+
 	return linalg.matrix.new(resultRows)
 end
-matrixClass.__mod = function (left, right)
+matrixClass.__mod = function(left, right)
 	local resultRows = {}
-	
+
 	if type(left) == "number" or type(right) == "number" then
 		local mat = type(left) == "number" and right or left
 		local scalar = type(left) == "number" and left or right
-		
+
 		for i = 1, mat._size[1] do
 			resultRows[i] = {}
 			for j = 1, mat._size[2] do
@@ -152,25 +161,25 @@ matrixClass.__mod = function (left, right)
 	else
 		error("Cannot divide a matrix by a matrix")
 	end
-		
+
 	return linalg.matrix.new(resultRows)
 end
 -- Super naive. Definitely need to implement a better version.
 -- See top answer here for what to implement soon: https://stackoverflow.com/questions/12311869/fast-matrix-exponentiation
-matrixClass.__pow = function (mat, power)
+matrixClass.__pow = function(mat, power)
 	if type(power) ~= "number" or floor(power) ~= power or power < 1 then
 		error("Cannot exponentiate a matrix by a non-positive non-integer")
 	end
-	
+
 	local resultMatrix = mat
-	
+
 	for i = 2, power do
 		resultMatrix = resultMatrix * mat
 	end
-		
+
 	return resultMatrix
 end
-matrixClass.__eq = function (left, right)
+matrixClass.__eq = function(left, right)
 	if left._size[1] ~= right._size[1] or left._size[2] ~= right._size[2] then
 		return false
 	end
@@ -193,12 +202,12 @@ end
 	
 	@returns [t:(m x n) matrix] The new matrix
 **--]]
-linalg.matrix.new = function (rows)
+linalg.matrix.new = function(rows)
 	local instance = setmetatable({}, matrixClass)
-	
+
 	instance._rows = rows
-	instance._size = { #rows, #rows[1] }
-	
+	instance._size = {#rows, #rows[1]}
+
 	return instance
 end
 
@@ -215,13 +224,13 @@ linalg.vector.norm = {}
 	
 	@returns [t:number] The resulting value
 **--]]
-linalg.vector.norm.l2 = function (v)
+linalg.vector.norm.l1 = function(v)
 	local sum = 0
-	
+
 	for i = 1, #v do
 		sum = sum + abs(v[i])
 	end
-	
+
 	return sum
 end
 
@@ -233,13 +242,13 @@ end
 	
 	@returns [t:number] The resulting value
 **--]]
-linalg.vector.norm.l2 = function (v)
+linalg.vector.norm.l2 = function(v)
 	local sum = 0
-	
+
 	for i = 1, #v do
-		sum = sum + v[i]^2
+		sum = sum + v[i] ^ 2
 	end
-	
+
 	return sqrt(sum)
 end
 
@@ -251,7 +260,7 @@ end
 	
 	@returns [t:number] The resulting value
 **--]]
-linalg.vector.norm.linf = function (v)
+linalg.vector.norm.linf = function(v)
 	return max(unpack(v))
 end
 
@@ -264,19 +273,19 @@ end
 	
 	@returns [t:nxn matrix] The resulting linear operator
 **--]]
-linalg.vector.createRotationMatrix = function (u, theta)
+linalg.vector.createRotationMatrix = function(u, theta)
 	if #u > 3 then
 		error("Cannot create rotation matrix about arbitrary unit vector other than in R^3")
 	end
-	
+
 	local costheta = cos(theta)
 	local sintheta = sin(theta)
 	local versine = 1 - costheta
-	
+
 	return {
-		{ versine * u[1]^2, (versine * u[1] * u[2]) - (sintheta * u[3]), (versine * u[1] * u[3]) + (sintheta * u[2]) },
-		{ (versine * u[1] * u[2]) + (sintheta * u[3]), versine * u[2]^2, (versine * u[2] * u[3]) - (sintheta * u[1]) },
-		{ (versine * u[1] * u[3]) - (sintheta * u[2]), (versine * u[2] * u[3]) + (sintheta * u[1]), versine * u[3]^2 }
+		{versine * u[1] ^ 2, (versine * u[1] * u[2]) - (sintheta * u[3]), (versine * u[1] * u[3]) + (sintheta * u[2])},
+		{(versine * u[1] * u[2]) + (sintheta * u[3]), versine * u[2] ^ 2, (versine * u[2] * u[3]) - (sintheta * u[1])},
+		{(versine * u[1] * u[3]) - (sintheta * u[2]), (versine * u[2] * u[3]) + (sintheta * u[1]), versine * u[3] ^ 2}
 	}
 end
 
