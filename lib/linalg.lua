@@ -2,17 +2,17 @@ local linalg = {}
 
 -- ARITHMETIC FUNCTIONS
 local abs = math.abs
-local ceil = math.ceil
+--REMOVE local ceil = math.ceil
 local floor = math.floor
 local sqrt = math.sqrt
-local max = math.max
-local min = math.min
+--REMOVE local max = math.max
+--REMOVE local min = math.min
 
 -- TRIG FUNCTIONS
 local cos = math.cos
 local sin = math.sin
-local tan = math.tan
-local atan2 = math.atan2
+--REMOVE local tan = math.tan
+--REMOVE local atan2 = math.atan2
 
 local rowClass = {}
 rowClass.__tostring = function(row)
@@ -43,7 +43,7 @@ end
 rowClass.__add = function (left, right)
 	if type(left) == "number" or type(right) == "number" then
 		local row = type(left) == "number" and right or left
-		local scalar = type(left) == "number" and left or right
+		--REMOVE 
 
 		if #row == 1 then
 			local leftScalar = type(left) == "number" and left or left[1]
@@ -61,7 +61,7 @@ rowClass.__add = function (left, right)
 	if #left == 1 then
 		return left[1] + right[1]
 	end
-	
+
 	local resultArray = {}
 
 	for i = 1, #left do
@@ -91,7 +91,7 @@ rowClass.__sub = function (left, right)
 	if #left == 1 then
 		return left[1] - right[1]
 	end
-	
+
 	local resultArray = {}
 
 	for i = 1, #left do
@@ -111,11 +111,11 @@ rowClass.__mul = function (left, right)
 			return leftScalar * rightScalar
 		else
 			local resultArray = {}
-		
+
 			for i = 1, #row do
 				resultArray[i] = scalar * row[i]
 			end
-		
+
 			return setmetatable(resultArray, rowClass)
 		end
 	end
@@ -130,11 +130,11 @@ rowClass.__div = function (left, right)
 			return left[1] / right
 		else
 			local resultArray = {}
-		
+
 			for i = 1, #left do
-				resultArray[i] = left[i] / scalar
+				resultArray[i] = left[i] / right
 			end
-		
+
 			return setmetatable(resultArray, rowClass)
 		end
 	else
@@ -149,11 +149,11 @@ rowClass.__mod = function (left, right)
 			return left[1] % right
 		else
 			local resultArray = {}
-		
+
 			for i = 1, #left do
-				resultArray[i] = left[i] % scalar
+				resultArray[i] = left[i] % right
 			end
-		
+
 			return setmetatable(resultArray, rowClass)
 		end
 	else
@@ -337,7 +337,7 @@ matrixClass.__pow = function(mat, power)
 
 	local resultMatrix = mat
 
-	for i = 2, power do
+	for _ = 2, power do
 		resultMatrix = resultMatrix * mat
 	end
 
@@ -364,9 +364,9 @@ linalg.matrix = {}
 
 --[[**
 	Creates a new matrix
-	
+
 	@param [t:array<array<number>>] rows A (m x n) array of numbers to fill the matrix with
-	
+
 	@returns [t:(m x n) matrix] The new matrix
 **--]]
 linalg.matrix.new = function(rows)
@@ -409,9 +409,9 @@ linalg.vector.norm = {}
 --[[**
 	The L1 norm of a vector
 	sum_i{|v_i|}
-	
+
 	@param [t:(n x 1) matrix] v The vector
-	
+
 	@returns [t:number] The resulting value
 **--]]
 linalg.vector.norm.l1 = function(v)
@@ -427,9 +427,9 @@ end
 --[[**
 	The L2 norm of a vector
 	sqrt(sum_i{(v_i)^2})
-	
+
 	@param [t:(n x 1) matrix] v The vector
-	
+
 	@returns [t:number] The resulting value
 **--]]
 linalg.vector.norm.l2 = function(v)
@@ -445,9 +445,9 @@ end
 --[[**
 	The L-infinity norm of a vector
 	max{v}
-	
+
 	@param [t:(n x 1) matrix] v The vector
-	
+
 	@returns [t:number] The resulting value
 **--]]
 linalg.vector.norm.linf = function(v)
@@ -479,10 +479,10 @@ end
 --[[**
 	Rotates a vector about an arbitrary vector
 	Only works for 3 dimensions
-	
+
 	@param [t:(n x 1) matrix] u The vector to rotate v about (should be a unit vector)
 	@param [t:number] theta The degrees to rotate by
-	
+
 	@returns [t:nxn matrix] The resulting linear operator
 **--]]
 linalg.vector.createRotationMatrix = function(u, theta)
