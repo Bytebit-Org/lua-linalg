@@ -12,6 +12,12 @@ return function()
             {-3, -4}
         }))
 
+        expect(function() local _ = 1 + mat end).to.throw()
+        expect(function() local _ = mat + 2 end).to.throw()
+
+        expect(function() local _ = 1 - mat end).to.throw()
+        expect(function() local _ = mat - 2 end).to.throw()
+
         expect(2 * mat).to.equal(linalg.matrix.new({
             {2, 4},
             {6, 8}
@@ -22,6 +28,7 @@ return function()
             {0.5, 1},
             {1.5, 2}
         }))
+        expect(function() local _ = 2 / mat end).to.throw()
 
         expect(mat % 2).to.equal(linalg.matrix.new({
             {1, 0},
@@ -38,13 +45,16 @@ return function()
         })
 
         expect(mat + mat).to.equal(mat * 2)
+        expect(function() local _ = mat + linalg.matrix.new({ {1} }) end).to.throw()
 
         expect(mat - mat).to.equal(linalg.matrix.zeros(2, 2))
+        expect(function() local _ = mat - linalg.matrix.new({ {1} }) end).to.throw()
         
         expect(mat * mat).to.equal(linalg.matrix.new({
             {7, 10},
             {15, 22}
         }))
+        expect(function() local _ = mat * linalg.matrix.new({ {1} }) end).to.throw()
     end)
     
     it("should rotate vectors appropriately", function()

@@ -327,21 +327,20 @@ _matrixClass.__mul = function(left, right)
 
 	return _newMatrix(resultRows)
 end
-_matrixClass.__div = function(left, right)
+_matrixClass.__div = function(mat, scalar)
+	if type(mat) == "number" then
+		error("Cannot divide a scalar by a matrix", 2)
+	elseif type(scalar) ~= "number" then
+		error("Cannot divide a matrix by a matrix", 2)
+	end
+
 	local resultRows = {}
 
-	if type(left) == "number" or type(right) == "number" then
-		local mat = type(left) == "number" and right or left
-		local scalar = type(left) == "number" and left or right
-
-		for i = 1, mat.Shape[1] do
-			resultRows[i] = {}
-			for j = 1, mat.Shape[2] do
-				resultRows[i][j] = mat[i][j] / scalar
-			end
+	for i = 1, mat.Shape[1] do
+		resultRows[i] = {}
+		for j = 1, mat.Shape[2] do
+			resultRows[i][j] = mat[i][j] / scalar
 		end
-	else
-		error("Cannot divide a matrix by a matrix", 2)
 	end
 
 	return _newMatrix(resultRows)
