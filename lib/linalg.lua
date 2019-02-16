@@ -872,7 +872,7 @@ end
 	@returns [t:nxn matrix] The resulting linear operator
 **--]]
 linalg.vector.createArbitraryAxisRotationMatrix = function(v, theta)
-	if v.Shape[1] > 3 then
+	if v.Shape[1] ~= 3 then
 		error("Cannot create rotation matrix about arbitrary unit vector other than in R^3", 2)
 	end
 
