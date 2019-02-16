@@ -1,3 +1,4 @@
 .DS_Store
 .vscode
 quickTesting.lua
+luacov.stats.out
