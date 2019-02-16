@@ -123,13 +123,13 @@ return function()
 
         expect(v[1] + 1).to.equal(2)
         expect(v[1] + v[1]).to.equal(2)
-        expect(v + v).to.equal(linalg.vector.new({ 2, 4 }))
+        expect(mat[1] + mat[1]).to.equal(linalg.matrix.new({ {2, 4} })[1])
         expect(function() local _ = mat[1] + 1 end).to.throw()
         expect(function() local _ = mat[1] + v[1] end).to.throw()
 
         expect(v[1] - 1).to.equal(0)
         expect(v[1] - v[1]).to.equal(0)
-        expect(v - v).to.equal(linalg.vector.new({ 0, 0 }))
+        expect(mat[1] - mat[1]).to.equal(linalg.matrix.new({ {0, 0} })[1])
         expect(function() local _ = mat[1] - 1 end).to.throw()
         expect(function() local _ = mat[1] - v[1] end).to.throw()
 
