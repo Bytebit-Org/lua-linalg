@@ -366,7 +366,7 @@ _matrixClass.__mod = function(left, right)
 	return _newMatrix(resultRows)
 end
 _matrixClass.__pow = function(base, power)
-	if type(base) ~= "number" and type(power) == "number" then
+	if type(base) ~= "number" and type(power) == "number" then 
 		if base.Shape[1] ~= base.Shape[2] then
 			error("Cannot exponentiate a non-square matrix", 2)
 		end
@@ -377,16 +377,15 @@ _matrixClass.__pow = function(base, power)
 		-- Runs in O(n^2 log_2(n)) time
 		-- See https://www.hackerearth.com/practice/notes/matrix-exponentiation-1/
 		local resultMatrix = linalg.matrix.identity(base.Shape[1])
-		local curPower = 0
 		local curMat = base
 		
-		while 2^curPower < power do
-			if power % 2 == 0 then
+		while power > 0 do
+			if power % 2 == 1 then
 				resultMatrix = resultMatrix * curMat
 			end
 
 			curMat = curMat * curMat
-			power = power / 2
+			power = floor(power / 2)
 		end
 	
 		return resultMatrix
