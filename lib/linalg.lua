@@ -25,7 +25,7 @@ _rowClass.__index = function(row, key)
 
 	return row._values[key]
 end
-_rowClass.__newindex = function(mat, key, value)
+_rowClass.__newindex = function()
 	error("Rows are immutable", 2)
 end
 _rowClass.__tostring = function(row)
@@ -220,12 +220,20 @@ _matrixClass.__index = function(mat, key)
 			error("Unit of a non-square matrix is undefined", 2)
 		end
 	elseif linalg.matrix[key] then
-		return function (...) linalg.matrix[key](mat, ...) end
+		if type(linalg.matrix[key]) == "function" then
+			return function (...) return linalg.matrix[key](mat, ...) end
+		else
+			return linalg.matrix[key]
+		end
 	elseif linalg.vector[key] and mat.Shape[2] == 1 then
-		return function (...) linalg.vector[key](mat, ...) end
+		if type(linalg.vector[key]) == "function" then
+			return function (...) return linalg.vector[key](mat, ...) end
+		else
+			return linalg.vector[key]
+		end
 	end
 end
-_matrixClass.__newindex = function(mat, key, value)
+_matrixClass.__newindex = function()
 	error("Matrices are immutable", 2)
 end
 _matrixClass.__tostring = function(mat)
@@ -365,7 +373,7 @@ _matrixClass.__mod = function(left, right)
 	return _newMatrix(resultRows)
 end
 _matrixClass.__pow = function(base, power)
-	if type(base) ~= "number" and type(power) == "number" then 
+	if type(base) ~= "number" and type(power) == "number" then
 		if base.Shape[1] ~= base.Shape[2] then
 			error("Cannot exponentiate a non-square matrix", 2)
 		end
@@ -377,7 +385,7 @@ _matrixClass.__pow = function(base, power)
 		-- See https://www.hackerearth.com/practice/notes/matrix-exponentiation-1/
 		local resultMatrix = linalg.matrix.identity(base.Shape[1])
 		local curMat = base
-		
+
 		while power > 0 do
 			if power % 2 == 1 then
 				resultMatrix = resultMatrix * curMat
@@ -386,7 +394,7 @@ _matrixClass.__pow = function(base, power)
 			curMat = curMat * curMat
 			power = floor(power / 2)
 		end
-	
+
 		return resultMatrix
 	elseif type(base) == "number" and type(power) ~= "number" then
 		error("Cannot raise an arbitrary number to a matrix power", 2)
@@ -427,11 +435,15 @@ end
 
 linalg.matrix.fromColumns = function(columnVectors)
 	local resultRows = {}
+	local n = columnVectors[1]["Shape"] and columnVectors[1].Shape[1] or #columnVectors[1]
 
 	for i = 1, #columnVectors do
-		resultRows[i] = {}
-		for j = 1, columnVectors[i].Shape[1] do
-			resultRows[i][j] = columnVectors[i][j][1]
+		for j = 1, n do
+			if not resultRows[j] then
+				resultRows[j] = {}
+			end
+
+			resultRows[j][i] = columnVectors[i][j] * 1 --*1 to ensure scalar functionality
 		end
 	end
 
@@ -546,7 +558,7 @@ linalg.matrix.isUpperTriangular = function(mat)
 
 	for i = 1, mat.Shape[1] do
 		for j = 1, mat.Shape[2] do
-			if mat.Shape[1] - i + 1 > j and mat[i][j] ~= 0 then
+			if i > j and mat[i][j] ~= 0 then
 				return false
 			end
 		end
@@ -638,6 +650,25 @@ end
 
 -- VECTOR FUNCTIONS
 linalg.vector = {}
+
+--[[**
+	Creates the standard basis vector i for R^n
+	That is, creates a vector of length n with all zeros except at index i which will have value 1
+
+	@param [t:number] i The index of e
+	@param [t:number] n The dimensionality of the vector
+
+	@returns [t:(n x 1) matrix] The standard basis vector e_i in R^n
+**--]]
+linalg.vector.e = function(i, n)
+	local rows = {}
+
+	for j = 1, n do
+		rows[j] = i == j and {1} or {0}
+	end
+
+	return _newMatrix(rows)
+end
 
 linalg.vector.norm = {}
 
