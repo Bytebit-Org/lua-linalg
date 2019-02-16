@@ -11,10 +11,46 @@ return function()
         expect(function() mat[1][1] = 1 end).to.throw()
     end)
 
+    it("should error on unrecognized keys", function()
+        local mat = linalg.matrix.new({
+            {1, 2},
+            {3, 4}
+        })
+
+        expect(function() local _ = mat["Invalid Key"] end).to.throw()
+        expect(function() local _ = mat[1]["Invalid Key"] end).to.throw()
+    end)
+
+    it("should handle equality correctly", function()
+        local mat = linalg.matrix.new({
+            {1, 2},
+            {3, 4}
+        })
+        local matT = linalg.matrix.new({
+            {1, 3},
+            {2, 4}
+        })
+        local mat2x3 = linalg.matrix.new({
+            {1, 2, 3},
+            {4, 5, 6}
+        })
+
+        expect(mat == mat).to.equal(true)
+        expect(mat == matT).to.equal(false)
+        expect(mat == mat2x3).to.equal(false)
+        expect(mat[1] == mat[1]).to.equal(true)
+        expect(mat[1] == matT[1]).to.equal(false)
+        expect(mat[1] == mat2x3[1]).to.equal(false)
+    end)
+
 	it("should handle matrix and scalar arithmetic correctly", function()
 		local mat = linalg.matrix.new({
             {1, 2},
             {3, 4}
+        })
+        local mat2x3 = linalg.matrix.new({
+            {1, 2, 3},
+            {4, 5, 6}
         })
 
 		expect(-mat).to.equal(linalg.matrix.new({
@@ -45,9 +81,11 @@ return function()
             {1, 0},
             {1, 0}
         }))
+        expect(function() local _ = 1 % mat end).to.throw()
         expect(function() local _ = mat % mat end).to.throw()
 
         expect(mat ^ 2).to.equal(mat * mat)
+        expect(function() local _ = 2 ^ mat2x3 end).to.throw()
         expect(function() local _ = mat ^ 2.5 end).to.throw()
         expect(function() local _ = 2 ^ mat end).to.throw()
         expect(function() local _ = mat ^ mat end).to.throw()
@@ -85,17 +123,20 @@ return function()
 
         expect(v[1] + 1).to.equal(2)
         expect(v[1] + v[1]).to.equal(2)
+        expect(v + v).to.equal(linalg.vector.new({ 2, 4 }))
         expect(function() local _ = mat[1] + 1 end).to.throw()
         expect(function() local _ = mat[1] + v[1] end).to.throw()
 
         expect(v[1] - 1).to.equal(0)
         expect(v[1] - v[1]).to.equal(0)
+        expect(v - v).to.equal(linalg.vector.new({ 0, 0 }))
         expect(function() local _ = mat[1] - 1 end).to.throw()
         expect(function() local _ = mat[1] - v[1] end).to.throw()
 
         expect(2 * mat[1]).to.equal(linalg.matrix.new({ {2, 4} })[1])
         expect(v[1] * mat[1]).to.equal(mat[1])
         expect(2 * v[1]).to.equal(2)
+        expect(v[1] * 2).to.equal(2)
         expect(v[1] * v[1]).to.equal(1)
         expect(function() local _ = mat[1] * mat[1] end).to.throw()
 
@@ -103,6 +144,7 @@ return function()
         expect(mat[1] / v[1]).to.equal(mat[1])
         expect(v[2] / 2).to.equal(1)
         expect(v[1] / v[1]).to.equal(1)
+        expect(function() local _ = 1 / mat[1] end).to.throw()
         expect(function() local _ = v[1] / mat[1] end).to.throw()
         expect(function() local _ = mat[1] / mat[1] end).to.throw()
 
@@ -110,6 +152,7 @@ return function()
         expect(mat[1] % v[2]).to.equal(linalg.matrix.new({ {1, 0} })[1])
         expect(v[1] % 2).to.equal(1)
         expect(v[1] % v[2]).to.equal(1)
+        expect(function() local _ = 1 % mat[1] end).to.throw()
         expect(function() local _ = v[1] % mat[1] end).to.throw()
         expect(function() local _ = mat[1] % mat[1] end).to.throw()
 
