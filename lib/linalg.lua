@@ -693,6 +693,13 @@ end
 -- VECTOR FUNCTIONS
 linalg.vector = {}
 
+--[[**
+	Creates a new column vector
+
+	@param [t:array<number>] values The values to have for the column vector
+
+	@returns [t:(n x 1) matrix] The new column vector
+**--]]
 linalg.vector.new = function(values)
 	local rows = {}
 

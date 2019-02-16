@@ -15,6 +15,9 @@ A simple script to implement linear algebra functions not provided by the Lua st
 Documentation
 ---
 
+### Matrix Functions
+#### Matrix Instantiation Functions
+
 <details>
 <summary><code>linalg.matrix.new = function(rows)</code></summary>
 
@@ -85,6 +88,8 @@ An n-length array whose entries will be set as the diagonal entries
 
 </details>
 
+#### Matrix Classification Functions
+
 <details>
 <summary><code>linalg.matrix.isDiagonal = function(mat)</code></summary>
 
@@ -134,6 +139,8 @@ True if the matrix is lower triangular, false otherwise
 
 </details>
 
+#### Basic Matrix Operation Functions
+
 <details>
 <summary><code>linalg.matrix.transpose = function(mat)</code></summary>
 
@@ -167,6 +174,23 @@ The matrix exponential approximation
 
 </details>
 
+### Vector Functions
+#### Vector Instantiation Functions
+
+<details>
+<summary><code>linalg.vector.new = function(values)</code></summary>
+
+Creates a new column vector
+
+**Parameters:**
+- `values` (`array<number>`)  
+The values to have for the column vector
+
+**Returns:**  
+[t:(n x 1) matrix] The new column vector
+
+</details>
+
 <details>
 <summary><code>linalg.vector.e = function(i, n)</code></summary>
 
@@ -183,6 +207,8 @@ The dimensionality of the vector
 [t:(n x 1) matrix] The standard basis vector e_i in R^n
 
 </details>
+
+#### Vector Norm Functions
 
 <details>
 <summary><code>linalg.vector.norm.l1 = function(v)</code></summary>
@@ -232,6 +258,8 @@ The resulting value
 
 </details>
 
+#### Vector Inner Product Functions
+
 <details>
 <summary><code>linalg.vector.ip.dot = function(v1, v2)</code></summary>
 
@@ -249,6 +277,8 @@ x 1) matrix] v2 The second vector
 The result
 
 </details>
+
+#### Basic Vector Operation Functions
 
 <details>
 <summary><code>linalg.vector.project = function (v, u, innerProductFunc, normFunc)</code></summary>
@@ -303,6 +333,8 @@ The angle to rotate by (in radians)
 [t:nxn matrix] The resulting linear operator
 
 </details>
+
+#### Vector Space Functions
 
 <details>
 <summary><code>linalg.gramSchmidt = function (u, epsilon, dim, innerProductFunc, normFunc)</code></summary>
