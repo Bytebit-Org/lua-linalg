@@ -19,11 +19,13 @@ local _newRow = function(values)
 	return instance
 end
 _rowClass.__index = function(row, key)
-	if key == "Length" then
+	if type(key) == "number" then
+		return row._values[key]
+	elseif key == "Length" then
 		return #row._values
 	end
 
-	return row._values[key]
+	error("Unrecognized key: " .. tostring(key))
 end
 _rowClass.__newindex = function()
 	error("Rows are immutable", 2)
@@ -51,7 +53,7 @@ _rowClass.__unm = function (row)
 		resultArray[i] = -1 * row[i]
 	end
 
-	return setmetatable(resultArray, _rowClass)
+	return _newRow(resultArray)
 end
 _rowClass.__add = function (left, right)
 	if type(left) == "number" or type(right) == "number" then
@@ -80,7 +82,7 @@ _rowClass.__add = function (left, right)
 		resultArray[i] = left[i] + right[i]
 	end
 
-	return setmetatable(resultArray, _rowClass)
+	return _newRow(resultArray)
 end
 _rowClass.__sub = function (left, right)
 	if type(left) == "number" or type(right) == "number" then
@@ -109,7 +111,7 @@ _rowClass.__sub = function (left, right)
 		resultArray[i] = left[i] - right[i]
 	end
 
-	return setmetatable(resultArray, _rowClass)
+	return _newRow(resultArray)
 end
 _rowClass.__mul = function (left, right)
 	if type(left) == "number" or type(right) == "number" then
@@ -127,10 +129,16 @@ _rowClass.__mul = function (left, right)
 				resultArray[i] = scalar * row[i]
 			end
 
-			return setmetatable(resultArray, _rowClass)
+			return _newRow(resultArray)
 		end
-	elseif left.Length == 1 and right.Length == 1 then
-		return left[1] * right[1]
+	elseif left.Length == 1 or right.Length == 1 then
+		if left.Length == 1 and right.Length == 1 then
+			return left[1] * right[1]
+		elseif left.Length == 1 then
+			return left[1] * right
+		else
+			return left * right[1]
+		end
 	end
 
 	error("Multiplication of two rows is undefined", 2)
@@ -148,11 +156,19 @@ _rowClass.__div = function (left, right)
 				resultArray[i] = left[i] / right
 			end
 
-			return setmetatable(resultArray, _rowClass)
+			return _newRow(resultArray)
 		end
-	else
-		error("Division of two rows is undefined", 2)
+	elseif left.Length == 1 or right.Length == 1 then
+		if left.Length == 1 and right.Length == 1 then
+			return left[1] / right[1]
+		elseif left.Length == 1 then
+			error("Division of a scalar by a row is undefined", 2)
+		else
+			return left / right[1]
+		end
 	end
+
+	error("Division of two rows is undefined", 2)
 end
 _rowClass.__mod = function (left, right)
 	if type(left) == "number" then
@@ -167,11 +183,19 @@ _rowClass.__mod = function (left, right)
 				resultArray[i] = left[i] % right
 			end
 
-			return setmetatable(resultArray, _rowClass)
+			return _newRow(resultArray)
 		end
-	else
-		error("Modulo of two rows is undefined", 2)
+	elseif left.Length == 1 or right.Length == 1 then
+		if left.Length == 1 and right.Length == 1 then
+			return left[1] % right[1]
+		elseif left.Length == 1 then
+			error("Modulo of a scalar by a row is undefined", 2)
+		else
+			return left % right[1]
+		end
 	end
+
+	error("Modulo of two rows is undefined", 2)
 end
 _rowClass.__pow = function (left, right)
 	if type(left) == "number" then
@@ -186,9 +210,30 @@ _rowClass.__pow = function (left, right)
 		else
 			error("Exponentiation of a row by a scalar is undefined", 2)
 		end
-	else
-		error("Exponentiation of two rows is undefined", 2)
+	elseif left.Length == 1 or right.Length == 1 then
+		if left.Length == 1 and right.Length == 1 then
+			return left[1] ^ right[1]
+		elseif left.Length == 1 then
+			error("Exponentiation of a scalar by a row is undefined", 2)
+		else
+			error("Exponentiation of a row by a scalar is undefined", 2)
+		end
 	end
+
+	error("Exponentiation of two rows is undefined", 2)
+end
+_rowClass.__eq = function(left, right)
+	if left.Length ~= right.Length then
+		return false
+	end
+
+	for i = 1, left.Length do
+		if left[i] ~= right[i] then
+			return false
+		end
+	end
+
+	return true
 end
 
 --[[ MATRIX CLASS ]]--
@@ -222,16 +267,14 @@ _matrixClass.__index = function(mat, key)
 	elseif linalg.matrix[key] then
 		if type(linalg.matrix[key]) == "function" then
 			return function (...) return linalg.matrix[key](mat, ...) end
-		else
-			return linalg.matrix[key]
 		end
 	elseif linalg.vector[key] and mat.Shape[2] == 1 then
 		if type(linalg.vector[key]) == "function" then
 			return function (...) return linalg.vector[key](mat, ...) end
-		else
-			return linalg.vector[key]
 		end
 	end
+
+	error("Unrecognized key: " .. tostring(key))
 end
 _matrixClass.__newindex = function()
 	error("Matrices are immutable", 2)
@@ -353,21 +396,20 @@ _matrixClass.__div = function(mat, scalar)
 
 	return _newMatrix(resultRows)
 end
-_matrixClass.__mod = function(left, right)
+_matrixClass.__mod = function(mat, scalar)
+	if type(mat) == "number" then
+		error("Cannot compute modulus of a scalar by a matrix", 2)
+	elseif type(scalar) ~= "number" then
+		error("Cannot compute modulus of a matrix by a matrix", 2)
+	end
+
 	local resultRows = {}
 
-	if type(left) == "number" or type(right) == "number" then
-		local mat = type(left) == "number" and right or left
-		local scalar = type(left) == "number" and left or right
-
-		for i = 1, mat.Shape[1] do
-			resultRows[i] = {}
-			for j = 1, mat.Shape[2] do
-				resultRows[i][j] = mat[i][j] % scalar
-			end
+	for i = 1, mat.Shape[1] do
+		resultRows[i] = {}
+		for j = 1, mat.Shape[2] do
+			resultRows[i][j] = mat[i][j] % scalar
 		end
-	else
-		error("Cannot divide a matrix by a matrix", 2)
 	end
 
 	return _newMatrix(resultRows)
@@ -651,6 +693,16 @@ end
 -- VECTOR FUNCTIONS
 linalg.vector = {}
 
+linalg.vector.new = function(values)
+	local rows = {}
+
+	for i = 1, #values do
+		rows[i] = {values[i]}
+	end
+
+	return _newMatrix(rows)
+end
+
 --[[**
 	Creates the standard basis vector i for R^n
 	That is, creates a vector of length n with all zeros except at index i which will have value 1
@@ -815,7 +867,7 @@ end
 	Only works for 3 dimensions
 
 	@param [t:(n x 1) matrix] v The vector to rotate about (should be a unit vector)
-	@param [t:number] theta The degrees to rotate by
+	@param [t:number] theta The angle to rotate by (in radians)
 
 	@returns [t:nxn matrix] The resulting linear operator
 **--]]
