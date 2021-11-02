@@ -1,0 +1,37 @@
+{
+	"name": "test-rojo-proj",
+	"globIgnorePaths": [
+		"**/package.json",
+		"**/tsconfig.json",
+		"**/*.project.json",
+		"**/.editorconfig",
+		"**/.git*",
+		"**/.vscode",
+		"**/*.md",
+		"**/*.toml",
+		"**/*.yaml",
+		"**/*.yml",
+		"**/*.lock"
+	],
+	"tree": {
+		"$className": "DataModel",
+		"ReplicatedStorage": {
+			"$className": "ReplicatedStorage",
+			"wally_packages": {
+				"$path": "Packages",
+				"node_modules": {
+					"$path": "./node_modules/@rbxts"
+				}
+			},
+			"src": {
+				"$path": "./src"
+			}
+		},
+		"ServerScriptService": {
+			"$className": "ServerScriptService",
+			"TestRunner": {
+				"$path": "./spec.server.lua"
+			}
+		}
+	}
+}
