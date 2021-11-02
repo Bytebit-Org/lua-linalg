@@ -1,5 +1,5 @@
 {
-	"name": "test-rojo-proj",
+	"name": "unit-tests",
 	"globIgnorePaths": [
 		"**/package.json",
 		"**/tsconfig.json",
@@ -18,10 +18,7 @@
 		"ReplicatedStorage": {
 			"$className": "ReplicatedStorage",
 			"wally_packages": {
-				"$path": "Packages",
-				"node_modules": {
-					"$path": "./node_modules/@rbxts"
-				}
+				"$path": "Packages"
 			},
 			"src": {
 				"$path": "./src"
