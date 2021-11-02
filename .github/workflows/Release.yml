@@ -50,11 +50,9 @@ jobs:
       - name: prepare wally package contents
         run: |
           mkdir -p ~/temp/linalg
-          cp -r ./{include,out} ~/temp/linalg/
+          cp -r ./{Packages,src} ~/temp/linalg/
           cp ./{CHANGELOG.md,LICENSE,README.md,wally.lock,wally.toml} ~/temp/linalg/
           cp ./standalone-model.project.json ~/temp/linalg/default.project.json
-          mkdir ~/temp/linalg/node_modules
-          cp -r ./node_modules/@rbxts ~/temp/linalg/node_modules/
       - name: prepare wally auth
         run: |
           mkdir ~/.wally
