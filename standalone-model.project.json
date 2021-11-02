@@ -1,0 +1,6 @@
+{
+	"name": "linalg",
+	"tree": {
+		"$path": "src"
+	}
+}
