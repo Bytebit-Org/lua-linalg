@@ -20,7 +20,7 @@ A simple script to implement linear algebra functions not provided by the Lua st
 ### Wally
 [Wally](https://github.com/UpliftGames/wally/) users can install this package by adding the following line to their `Wally.toml` under `[dependencies]`:
 ```
-linalg = "bytebit/linalg@0.0.1"
+linalg = "bytebit/linalg@1.0.0"
 ```
 
 Then just run `wally install`.
