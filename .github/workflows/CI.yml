@@ -30,6 +30,8 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: install foreman packages (rojo, run-in-roblox)
         run: foreman install
+      - name: install wally packages
+        run: wally install
       - name: run rojo build
         run: rojo build -o .\\unit_tests.rbxlx .\\unit-tests.project.json
       - name: run tests

@@ -18,6 +18,8 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
       - name: install foreman packages (rojo, run-in-roblox)
         run: foreman install
+      - name: install wally packages
+        run: wally install
       - name: run rojo build
         run: rojo build -o ./linalg-${{ steps.get_wally_version.outputs.version-string }}.rbxmx ./standalone-model.project.json
       - name: create-release
